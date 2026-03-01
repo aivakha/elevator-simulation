@@ -1,11 +1,11 @@
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /app/websocket
 
-COPY package*.json ./
+COPY websocket/package*.json ./
 RUN npm ci --omit=dev
 
-COPY . ./
+COPY websocket/ ./
 
 EXPOSE 8080
 

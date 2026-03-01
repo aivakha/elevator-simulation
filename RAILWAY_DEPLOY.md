@@ -2,15 +2,16 @@
 
 This repo is now prepared for Railway with dedicated Dockerfiles:
 
-- `backend/Dockerfile.railway`
-- `frontend/Dockerfile.railway`
-- `websocket/Dockerfile.railway`
+- `docker/railway/backend/Dockerfile.api`
+- `docker/railway/backend/Dockerfile.worker`
+- `docker/railway/frontend/Dockerfile`
+- `docker/railway/websocket/Dockerfile`
 
 Plus startup scripts:
 
-- `backend/railway/start-api.sh`
-- `backend/railway/start-worker.sh`
-- `frontend/railway/start-frontend.sh`
+- `docker/railway/backend/start-api.sh`
+- `docker/railway/backend/start-worker.sh`
+- `docker/railway/frontend/start-frontend.sh`
 
 ## 1. Create Railway services
 
@@ -28,22 +29,22 @@ Create these services in one Railway project:
 Use the same repo for all app services, with these settings:
 
 1. `backend-api`
-- Root directory: `backend`
-- Dockerfile path: `Dockerfile.railway`
+- Root directory: repo root (`elevator_v2`)
+- Dockerfile path: `docker/railway/backend/Dockerfile.api`
 - Start command: leave default (uses `/app/railway/start-api.sh`)
 
 2. `backend-worker`
-- Root directory: `backend`
-- Dockerfile path: `Dockerfile.worker.railway`
+- Root directory: repo root (`elevator_v2`)
+- Dockerfile path: `docker/railway/backend/Dockerfile.worker`
 - Start command: leave empty (worker loop starts automatically via image CMD)
 
 3. `websocket`
-- Root directory: `websocket`
-- Dockerfile path: `Dockerfile.railway`
+- Root directory: repo root (`elevator_v2`)
+- Dockerfile path: `docker/railway/websocket/Dockerfile`
 
 4. `frontend`
-- Root directory: `frontend`
-- Dockerfile path: `Dockerfile.railway`
+- Root directory: repo root (`elevator_v2`)
+- Dockerfile path: `docker/railway/frontend/Dockerfile`
 
 ## 3. Environment variables
 
