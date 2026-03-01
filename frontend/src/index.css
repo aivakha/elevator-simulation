@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+  /* ─── Panels ─────────────────────────────────────────────────────────── */
+
+  .sim-card {
+    @apply rounded-xl border border-slate-200 bg-white p-4 shadow-sm;
+  }
+
+  .sim-section-title {
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-600;
+  }
+
+  /* Sunken inner box (slate-50) used inside cards for sub-sections */
+  .inset-panel {
+    @apply rounded-lg border border-slate-200 bg-slate-50 p-3;
+  }
+
+  .hint-text {
+    @apply text-xs text-slate-500;
+  }
+
+  /* ─── Stat cells (inspector 3-column grid) ────────────────────────────── */
+
+  .stat-cell  { @apply rounded bg-slate-50 p-2; }
+  .stat-label { @apply text-slate-500; }
+  .stat-value { @apply font-semibold tabular-nums text-slate-900; }
+
+  /* ─── Small status badges (inspector header pills) ─────────────────────── */
+
+  .status-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide;
+  }
+
+  .status-badge--emergency { @apply border border-red-200 bg-red-50 text-red-700; }
+  .status-badge--oos       { @apply border border-sky-300 bg-sky-100 text-sky-700; }
+  .status-badge--overload  { @apply border border-amber-300 bg-amber-100 text-amber-700; }
+
+  .status-badge-dot { @apply h-1.5 w-1.5 rounded-full; }
+
+  /* ─── Button system ─────────────────────────────────────────────────── */
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold shadow-sm ring-1 ring-black/5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn--primary { @apply bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-700; }
+  .btn--neutral { @apply border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-slate-400; }
+  .btn--danger  { @apply bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500; }
+  .btn--warning { @apply bg-amber-500 text-white hover:bg-amber-600 focus-visible:ring-amber-400; }
+  .btn--md      { @apply px-4 py-2; }
+  .btn--sm      { @apply px-3 py-1.5; }
+
+  /* ─── Simulation status styles ──────────────────────────────────────── */
+
+  .sim-status-pill--running   { @apply border border-emerald-200 bg-emerald-50 text-emerald-800; }
+  .sim-status-pill--paused    { @apply border border-amber-200 bg-amber-50 text-amber-800; }
+  .sim-status-pill--completed { @apply border border-slate-300 bg-slate-100 text-slate-700; }
+  .sim-status-pill--draft     { @apply border border-sky-200 bg-sky-50 text-sky-800; }
+  .sim-status-pill--unknown   { @apply border border-slate-200 bg-slate-50 text-slate-600; }
+
+  .sim-status-dot--running    { @apply bg-emerald-500; }
+  .sim-status-dot--paused     { @apply bg-amber-500; }
+  .sim-status-dot--completed  { @apply bg-slate-500; }
+  .sim-status-dot--draft      { @apply bg-sky-400; }
+  .sim-status-dot--unknown    { @apply bg-slate-400; }
+
+  /* ─── Header pills (App toolbar) ─────────────────────────────────────── */
+
+  .header-pill {
+    @apply inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .header-pill--emergency { @apply border border-red-200 bg-red-50 text-red-800; }
+  .header-pill--overload  { @apply border border-amber-200 bg-amber-50 text-amber-800; }
+  .header-pill--oos       { @apply border border-sky-200 bg-sky-50 text-sky-800; }
+  .header-pill--pending   { @apply border border-cyan-200 bg-cyan-50 text-cyan-800; }
+  .header-pill--live      { @apply border border-emerald-200 bg-emerald-50 text-emerald-800; }
+  .header-pill--offline   { @apply border border-red-200 bg-red-50 text-red-700; }
+
+  .header-pill-dot { @apply h-2 w-2 rounded-full; }
+
+  /* ─── Load bar ───────────────────────────────────────────────────────── */
+
+  .load-bar    { @apply h-2 w-full overflow-hidden rounded bg-slate-100; }
+  .load-bar--sm { @apply h-1.5 w-full overflow-hidden rounded bg-slate-100; }
+
+  .load-fill           { @apply h-full; }
+  .load-fill--danger   { @apply bg-red-500; }
+  .load-fill--warning  { @apply bg-amber-500; }
+  .load-fill--normal   { @apply bg-blue-500; }
+
+  /* ─── Fleet table ───────────────────────────────────────────────────── */
+
+  .fleet-scroll { @apply max-h-72 overflow-auto rounded-lg border border-slate-200; }
+
+  .fleet-grid {
+    @apply grid grid-cols-[58px_44px_36px_1fr_144px_74px] items-center gap-2;
+  }
+
+  .fleet-header {
+    @apply border-b border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-600;
+  }
+
+  .fleet-row { @apply w-full border-b border-slate-100 bg-white px-3 py-2 text-left text-[12px] text-slate-800 transition hover:bg-slate-50; }
+  .fleet-row--selected { @apply bg-slate-50; }
+
+  /* ─── Data display pills (RunStatsPanel + BuildingConfigHeaderBar) ────── */
+
+  .data-pill {
+    @apply flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2;
+  }
+
+  .data-pill-label { @apply text-[11px] font-semibold text-slate-500; }
+  .data-pill-value { @apply text-sm font-semibold tabular-nums text-slate-900; }
+
+  /* RunStatsPanel variant: enforces a minimum width */
+  .metric-pill { @apply data-pill min-w-[112px]; }
+
+  /* ─── Zone row (DefaultZonesPanel) ──────────────────────────────────── */
+
+  .zone-row { @apply rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs; }
+
+  /* ─── Form fields (SimulationLobby) ─────────────────────────────────── */
+
+  .form-label { @apply block text-sm font-medium text-slate-600; }
+  .form-input { @apply mt-1 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-base text-slate-900 focus:border-slate-400 focus:outline-none; }
+
+  /* ─── Lobby page ─────────────────────────────────────────────────────── */
+
+  .lobby-bg { @apply min-h-screen bg-slate-50; }
+
+  .lobby-stat-card { @apply rounded-lg border border-slate-200 bg-white px-3 py-2; }
+  .lobby-stat-card--total { @apply border-slate-200 bg-white; }
+  .lobby-stat-card--running { @apply border-slate-200 bg-white; }
+  .lobby-stat-card--paused { @apply border-slate-200 bg-white; }
+  .lobby-stat-card--draft { @apply border-slate-200 bg-white; }
+
+  .lobby-stat-title { @apply text-[11px] font-medium uppercase tracking-[0.08em] text-slate-500; }
+  .lobby-stat-number { @apply mt-1 text-lg font-semibold text-slate-900; }
+
+  .sim-list-row { @apply rounded-lg border border-slate-200 bg-white px-4 py-4 md:px-5; }
+  .sim-list-row-layout { @apply flex flex-col gap-4 md:flex-row md:items-center md:justify-between; }
+  .lobby-created-date { @apply mt-1 text-sm text-slate-500; }
+  .lobby-tags { @apply mt-3 flex flex-wrap gap-2; }
+  .lobby-actions { @apply flex flex-wrap items-center gap-2 md:justify-end; }
+  .lobby-status-pill { @apply rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]; }
+
+  .sim-tag { @apply rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600; }
+
+  /* Row-level action buttons (Edit / Delete) */
+  .btn-row-action { @apply inline-flex h-10 min-w-[86px] items-center justify-center rounded-md border bg-white px-3 text-sm font-medium transition; }
+  .btn-row-action--edit { @apply border-slate-200 text-slate-700 hover:bg-slate-50; }
+  .btn-row-action--delete { @apply border-red-200 text-red-700 hover:bg-red-50; }
+
+  /* ─── App shell/layout ─────────────────────────────────────────────── */
+
+  .app-shell { @apply flex min-h-screen flex-col bg-slate-50; }
+  .app-header { @apply border-b border-slate-200 bg-white; }
+  .app-header-inner { @apply px-6 py-3; }
+  .app-header-row { @apply flex items-center justify-between gap-3; }
+  .app-header-left { @apply flex flex-wrap items-center gap-3; }
+  .app-title { @apply text-lg font-semibold text-slate-900; }
+
+  .app-subheader { @apply border-t border-slate-200 bg-slate-50 px-6 py-3; }
+  .app-subheader-row { @apply flex flex-wrap items-center justify-between gap-3; }
+
+  .app-layout-grid { @apply grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[520px_minmax(0,1fr)] xl:grid-cols-[520px_minmax(0,1fr)_560px]; }
+  .app-panel-stack { @apply space-y-4; }
+  .app-left-panel { @apply order-2 overflow-y-auto border-t border-slate-200 bg-white p-4 lg:order-1 lg:border-r lg:border-t-0; }
+  .app-main-panel { @apply order-1 flex flex-col overflow-hidden bg-white lg:order-2; }
+  .app-main-content { @apply flex-1 overflow-auto p-4; }
+  .app-right-panel { @apply order-3 min-h-0 overflow-hidden border-t border-slate-200 bg-slate-50 p-4 lg:col-span-2 xl:col-span-1 xl:border-l xl:border-t-0; }
+  .app-manual-disabled-card { @apply rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600; }
+
+  /* ─── Lobby layout wrappers ─────────────────────────────────────────── */
+
+  .lobby-main { @apply lobby-bg px-4 py-6 md:px-8 md:py-8; }
+  .lobby-container { @apply mx-auto w-full max-w-[1080px]; }
+  .lobby-hero-card { @apply rounded-lg border border-slate-200 bg-white px-5 py-5 md:px-6 md:py-5; }
+  .lobby-hero-row { @apply flex flex-wrap items-start justify-between gap-4; }
+  .lobby-hero-actions { @apply flex items-center gap-2; }
+  .lobby-overline { @apply text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500; }
+  .lobby-title { @apply mt-1 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl; }
+  .lobby-subtitle { @apply mt-2 text-sm text-slate-500; }
+  .lobby-docs-button { @apply h-11 min-w-[150px]; }
+  .lobby-create-button { @apply h-11 min-w-[170px]; }
+  .lobby-stats-grid { @apply mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4; }
+  .lobby-list-section { @apply mt-4 space-y-2.5; }
+  .lobby-empty { @apply rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500; }
+  .lobby-open-button { @apply min-w-0 flex-1 text-left; }
+  .lobby-row-title { @apply truncate text-lg font-semibold tracking-tight text-slate-900 md:text-xl; }
+
+  .lobby-form-main { @apply lobby-bg p-6 md:p-8; }
+  .lobby-form-card { @apply mx-auto w-full max-w-[920px] rounded-lg border border-slate-200 bg-white p-6 md:p-7; }
+  .lobby-form-header { @apply mb-6 flex items-start justify-between gap-4; }
+  .lobby-form-heading { @apply min-w-0; }
+  .lobby-form-overline { @apply text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500; }
+  .lobby-form-title { @apply text-2xl font-semibold text-slate-900; }
+  .lobby-form-subtitle { @apply mt-2 text-sm text-slate-500; }
+  .lobby-back-button { @apply h-11 min-w-[92px]; }
+  .lobby-form-grid { @apply grid grid-cols-1 gap-3 sm:grid-cols-2; }
+  .lobby-form { @apply space-y-4; }
+  .lobby-loading-state { @apply inset-panel text-sm text-slate-600; }
+  .lobby-submit-button { @apply w-full; }
+
+  /* ─── Docs page ────────────────────────────────────────────────────── */
+
+  .docs-main { @apply min-h-screen bg-slate-50 px-4 py-6 md:px-8 md:py-8; }
+  .docs-container { @apply mx-auto w-full max-w-[1080px] space-y-4; }
+  .docs-hero { @apply flex flex-wrap items-start justify-between gap-4 rounded-lg border border-slate-200 bg-white p-5 md:p-6; }
+  .docs-overline { @apply text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500; }
+  .docs-title { @apply mt-1 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl; }
+  .docs-subtitle { @apply mt-2 max-w-[760px] text-sm text-slate-500; }
+  .docs-back-button { @apply h-11 min-w-[92px]; }
+
+  .docs-section { @apply rounded-lg border border-slate-200 bg-white p-5 md:p-6; }
+  .docs-section-title { @apply text-lg font-semibold text-slate-900; }
+  .docs-section-body { @apply mt-3 space-y-3 text-sm leading-6 text-slate-700; }
+  .docs-grid-2 { @apply grid grid-cols-1 gap-3 md:grid-cols-2; }
+  .docs-card { @apply rounded-lg border border-slate-200 bg-slate-50 p-4; }
+  .docs-card-title { @apply text-sm font-semibold text-slate-900; }
+
+  .docs-list { @apply list-disc space-y-1 pl-5; }
+  .docs-ordered { @apply list-decimal space-y-2 pl-5; }
+  .docs-code { @apply rounded border border-slate-300 bg-slate-100 px-1.5 py-0.5 font-mono text-[12px] text-slate-800; }
+  .docs-state-legend { @apply rounded-lg border border-slate-200 bg-slate-50 p-4; }
+  .docs-state-list { @apply mt-3 space-y-2; }
+  .docs-state-row { @apply grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2; }
+  .docs-state-label { @apply text-sm text-slate-700; }
+  .docs-state-sample { @apply flex items-center gap-2; }
+  .docs-mini-arrow { @apply text-sm font-bold text-red-500; }
+  .docs-mini-arrow--up { @apply text-blue-500; }
+  .docs-mini-car { @apply relative flex h-9 w-14 items-center justify-center rounded-md border border-white/30 text-white; }
+  .docs-mini-car--idle { background-color: #64748b; }
+  .docs-mini-car--moving { background-color: #3b82f6; }
+  .docs-mini-car--door { background-color: #22c55e; }
+  .docs-mini-car--overloaded { background-color: #f59e0b; }
+  .docs-mini-car--oos { background-color: #0ea5e9; }
+  .docs-mini-car--emergency { background-color: #ef4444; }
+  .docs-mini-floor { @apply relative z-10 text-base font-semibold; }
+  .docs-mini-door { @apply absolute top-0 h-6 w-5 bg-white/30 transition duration-300; }
+  .docs-mini-door--left { @apply left-0 h-9 w-7 origin-left; }
+  .docs-mini-door--right { @apply right-0 h-9 w-7 origin-right; }
+  .docs-mini-door--open { transform: scaleX(0.16); }
+  .docs-mini-door--opening-anim { animation: docs-door-opening 1s ease-in-out infinite alternate; }
+  .docs-mini-door--closing-anim { animation: docs-door-closing 1s ease-in-out infinite alternate; }
+  .docs-mini-car--emergency-flash { animation: docs-emergency-flash 0.8s infinite; }
+  .docs-mini-car--oos-flash { animation: docs-service-flash 1.1s infinite; }
+
+  @keyframes docs-door-opening {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(0.16); }
+  }
+
+  @keyframes docs-door-closing {
+    0% { transform: scaleX(0.16); }
+    100% { transform: scaleX(1); }
+  }
+
+  @keyframes docs-emergency-flash {
+    0% { background-color: #ef4444; }
+    50% { background-color: #f97316; }
+    100% { background-color: #ef4444; }
+  }
+
+  @keyframes docs-service-flash {
+    0% { background-color: #0ea5e9; }
+    50% { background-color: #f59e0b; }
+    100% { background-color: #0ea5e9; }
+  }
+
+}
