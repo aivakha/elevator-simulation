@@ -1,0 +1,37 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+
+# Node
+node_modules/
+frontend/node_modules/
+websocket/node_modules/
+frontend/dist/
+
+# PHP / Laravel
+backend/vendor/
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/bootstrap/cache/*.php
+
+# Build artifacts
+coverage/
+
+# Local planning / tracking docs (not part of product artifact)
+TICKETS.md
+docs/
