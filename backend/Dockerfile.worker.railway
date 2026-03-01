@@ -1,0 +1,21 @@
+FROM php:8.3-cli-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache bash git unzip libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY composer.json composer.lock ./
+COPY . ./
+
+RUN mkdir -p /app/bootstrap/cache /app/storage/logs /app/storage/framework/cache/data /app/storage/framework/sessions /app/storage/framework/views \
+    && chmod -R 775 /app/bootstrap/cache /app/storage
+
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+RUN chmod +x /app/railway/start-api.sh /app/railway/start-worker.sh \
+    && chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+CMD ["/app/railway/start-worker.sh"]
