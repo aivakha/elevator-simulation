@@ -14,6 +14,19 @@ export type ElevatorZone = {
 
 export type DispatchAlgorithm = 'nearestCar' | 'scan' | 'look';
 
+export type HallCallDirection = 'up' | 'down';
+export type HallCallStatus = 'Pending' | 'Assigned' | 'Riding';
+
+export type HallCall = {
+  callId: string;
+  originFloor: number;
+  targetFloor: number;
+  direction: HallCallDirection;
+  status: HallCallStatus;
+  assignedElevatorId: string | null;
+  ageTicks: number;
+};
+
 export type QueueElevator = {
   elevatorId: string;
   currentFloor: number;
@@ -42,7 +55,7 @@ export type QueuePreview = {
   droppedOffPassengers: number;
   totalPassengers: number;
   elevators: QueueElevator[];
-  pendingHallCalls: Array<Record<string, string | number | null>>;
+  pendingHallCalls: HallCall[];
 };
 
 export type SimulationSummary = {
