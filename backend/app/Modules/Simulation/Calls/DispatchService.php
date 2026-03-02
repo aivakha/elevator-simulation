@@ -10,7 +10,7 @@ use App\Modules\Simulation\Enums\CallStatusEnum;
 use App\Modules\Simulation\Enums\DoorStateEnum;
 use App\Modules\Simulation\Enums\HallCallDirectionEnum;
 use App\Modules\Simulation\Runtime\ElevatorRuntimeState;
-use App\Modules\Simulation\Runtime\HallCallState;
+use App\Modules\Simulation\Runtime\HallCallRuntimeState;
 use App\Modules\Simulation\Runtime\SimulationRuntimeState;
 use Random\RandomException;
 
@@ -29,10 +29,10 @@ final readonly class DispatchService
      */
     public function assignManualCall(SimulationRuntimeState $state, ManualCallDto $call): ?array
     {
-        $callId    = HallCallState::newId($state->simulationId, $state->tickNumber, 'manual');
+        $callId    = HallCallRuntimeState::newId($state->simulationId, $state->tickNumber, 'manual');
         $direction = HallCallDirectionEnum::fromFloors($call->originFloor, $call->destinationFloor);
 
-        $state->pendingHallCalls[] = new HallCallState(
+        $state->pendingHallCalls[] = new HallCallRuntimeState(
             callId          : $callId,
             originFloor     : $call->originFloor,
             targetFloor     : $call->destinationFloor,
@@ -98,7 +98,7 @@ final readonly class DispatchService
     /**
      * Assign call to a concrete elevator and enqueue pickup/destination stops
      */
-    private function assignCallToElevator(SimulationRuntimeState $state, HallCallState $call, string $elevatorId): ?array
+    private function assignCallToElevator(SimulationRuntimeState $state, HallCallRuntimeState $call, string $elevatorId): ?array
     {
         foreach ($state->elevators as $elevator) {
             if ($elevator->elevatorId !== $elevatorId) {
@@ -134,7 +134,7 @@ final readonly class DispatchService
     private function promoteToRidingImmediately(
         SimulationRuntimeState $state,
         ElevatorRuntimeState $elevator,
-        HallCallState $call,
+        HallCallRuntimeState $call,
     ): void {
         $call->status = CallStatusEnum::Riding;
         $elevator->board($call->passengerWeight);

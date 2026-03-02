@@ -77,9 +77,10 @@ final class RuntimeStateFactory
             maxLimitKey : 'maxDoorOpenSeconds',
         );
 
-        $tickIntervalMs  = $this->resolveDefaultPositiveInt($defaults, self::KEY_TICK_INTERVAL_MS);
-        $maxPendingCalls = $this->resolveDefaultPositiveInt($defaults, self::KEY_MAX_PENDING_CALLS);
-        $doorHoldTicks   = (int) round(($doorOpenSeconds * 1000) / $tickIntervalMs);
+        $tickIntervalMs    = $this->resolveDefaultPositiveInt($defaults, self::KEY_TICK_INTERVAL_MS);
+        $floorTravelSeconds = $this->resolveDefaultPositiveInt($defaults, 'floorTravelSeconds');
+        $maxPendingCalls   = $this->resolveDefaultPositiveInt($defaults, self::KEY_MAX_PENDING_CALLS);
+        $doorHoldTicks     = (int) round(($doorOpenSeconds * 1000) / $tickIntervalMs);
 
         $mode      = SimulationModeEnum::from($config[self::KEY_MODE] ?? $defaults[self::KEY_MODE]);
         $algorithm = DispatchAlgorithmEnum::from($config[self::KEY_ALGORITHM] ?? $defaults[self::KEY_ALGORITHM]);
@@ -88,10 +89,12 @@ final class RuntimeStateFactory
         return new SimulationRuntimeState(
             simulationId               : $simulationId,
             tickNumber                 : 0,
-            floors                      : $floors,
+            floors                     : $floors,
             maxPendingCalls            : $maxPendingCalls,
             emergencyDescentMultiplier : $emergencyDescentMultiplier,
             doorHoldTicks              : $doorHoldTicks,
+            tickIntervalMs             : $tickIntervalMs,
+            floorTravelSeconds         : $floorTravelSeconds,
             pickedUpPassengers         : 0,
             droppedOffPassengers       : 0,
             mode                       : $mode,

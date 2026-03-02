@@ -4,6 +4,7 @@ namespace App\Modules\Simulation\Services;
 
 use App\Modules\Simulation\Calls\DispatchService;
 use App\Modules\Simulation\Calls\ModeTrafficService;
+use App\Modules\Simulation\DTOs\SimulationSnapshotDto;
 use App\Modules\Simulation\Emergency\EmergencyService;
 use App\Modules\Simulation\Enums\CallStatusEnum;
 use App\Modules\Simulation\Enums\DoorStateEnum;
@@ -27,7 +28,6 @@ final readonly class TickEngineService
         private OutOfServiceService $outOfServiceService,
         private MovementService $movementService,
         private DoorService $doorService,
-        private TickPayloadBuilderService $tickPayloadBuilderService,
         private SimulationStateMutexService $simulationStateMutexService,
     ) {
     }
@@ -54,7 +54,7 @@ final readonly class TickEngineService
                 $this->dispatchService->assignPendingCalls($state);
             }
 
-            $payload = $this->tickPayloadBuilderService->build($state);
+            $payload = SimulationSnapshotDto::fromState($state)->toArray();
             $payload['arrivals'] = $arrivals;
 
             $this->runtimeStateRepository->saveState($state);

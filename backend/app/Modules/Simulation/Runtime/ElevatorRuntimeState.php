@@ -31,6 +31,62 @@ final class ElevatorRuntimeState
     ) {
     }
 
+    // Serialization
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'elevatorId'           => $this->elevatorId,
+            'shaftNumber'          => $this->shaftNumber,
+            'currentFloor'         => $this->currentFloor,
+            'currentLoad'          => $this->currentLoad,
+            'capacity'             => $this->capacity,
+            'pickedUpPassengers'   => $this->pickedUpPassengers,
+            'droppedOffPassengers' => $this->droppedOffPassengers,
+            'overloadSavedLoad'    => $this->overloadSavedLoad,
+            'direction'            => $this->direction->value,
+            'state'                => $this->state->value,
+            'condition'            => $this->condition->value,
+            'doorState'            => $this->doorState->value,
+            'doorTimerTicks'       => $this->doorTimerTicks,
+            'plannedStops'         => $this->plannedStops,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $elevatorId  = (string) $data['elevatorId'];
+        $shaftNumber = (int) ($data['shaftNumber'] ?? 0);
+
+        // Backward-compat: derive shaftNumber from elevatorId for states stored before shaftNumber was persisted
+        if (!isset($data['shaftNumber']) && preg_match('/^E(\d+)$/', $elevatorId, $matches) === 1) {
+            $shaftNumber = max(0, (int) $matches[1] - 1);
+        }
+
+        return new self(
+            elevatorId:           $elevatorId,
+            shaftNumber:          $shaftNumber,
+            currentFloor:         (int) $data['currentFloor'],
+            currentLoad:          (int) $data['currentLoad'],
+            capacity:             (int) $data['capacity'],
+            pickedUpPassengers:   (int) ($data['pickedUpPassengers'] ?? 0),
+            droppedOffPassengers: (int) ($data['droppedOffPassengers'] ?? 0),
+            overloadSavedLoad:    isset($data['overloadSavedLoad']) ? (int) $data['overloadSavedLoad'] : null,
+            direction:            ElevatorDirectionEnum::from((string) $data['direction']),
+            state:                ElevatorStateEnum::from((string) ($data['state'] ?? 'Idle')),
+            condition:            ElevatorConditionEnum::from((string) ($data['condition'] ?? 'Normal')),
+            doorState:            DoorStateEnum::from((string) $data['doorState']),
+            doorTimerTicks:       (int) ($data['doorTimerTicks'] ?? 0),
+            plannedStops:         array_map('intval', $data['plannedStops'] ?? []),
+        );
+    }
+
     // Queries
 
     public function nextStop(): ?int

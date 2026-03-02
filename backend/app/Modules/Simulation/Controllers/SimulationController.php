@@ -3,6 +3,8 @@
 namespace App\Modules\Simulation\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Simulation\SimulationConfigOptionsResource;
+use App\Http\Resources\Simulation\SimulationResource;
 use App\Models\Simulation;
 use App\Modules\Simulation\DTOs\SimulationConfigDto;
 use App\Modules\Simulation\Requests\SimulationConfigRequest;
@@ -18,7 +20,7 @@ final class SimulationController extends Controller
     public function listSimulations(): JsonResponse
     {
         return response()->json([
-            'simulations' => $this->simulationLifecycleService->list(),
+            'simulations' => SimulationResource::collection($this->simulationLifecycleService->list())->resolve(),
         ]);
     }
 
@@ -47,7 +49,9 @@ final class SimulationController extends Controller
 
         $simulation = $this->simulationLifecycleService->reset($simulation);
 
-        return response()->json(['simulation' => $simulation]);
+        return response()->json([
+            'simulation' => SimulationResource::make($simulation)->resolve(),
+        ]);
     }
 
     public function updateSimulationConfig(SimulationConfigRequest $request, Simulation $simulation): JsonResponse
@@ -62,7 +66,9 @@ final class SimulationController extends Controller
 
         $simulation = $this->simulationLifecycleService->reset($simulation);
 
-        return response()->json(['simulation' => $simulation]);
+        return response()->json([
+            'simulation' => SimulationResource::make($simulation)->resolve(),
+        ]);
     }
 
     public function deleteSimulation(Simulation $simulation): JsonResponse
@@ -74,9 +80,9 @@ final class SimulationController extends Controller
 
     public function configOptions(): JsonResponse
     {
-        return response()->json([
+        return response()->json(SimulationConfigOptionsResource::make([
             'defaults' => Simulation::defaultConfigPayload(),
             'limits'   => config('simulation.limits', []),
-        ]);
+        ])->resolve());
     }
 }

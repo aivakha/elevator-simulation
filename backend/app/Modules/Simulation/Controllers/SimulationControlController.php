@@ -4,8 +4,13 @@ namespace App\Modules\Simulation\Controllers;
 
 use Closure;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Simulation\ElevatorConditionResource;
+use App\Http\Resources\Simulation\ManualCallAssignmentResource;
+use App\Http\Resources\Simulation\SimulationConditionResource;
+use App\Http\Resources\Simulation\SimulationStatusResource;
 use App\Models\Simulation;
 use App\Modules\Simulation\DTOs\ManualCallDto;
+use App\Modules\Simulation\DTOs\SimulationSnapshotDto;
 use App\Modules\Simulation\Enums\ElevatorConditionEnum;
 use App\Modules\Simulation\Enums\SimulationModeEnum;
 use App\Modules\Simulation\Calls\DispatchService;
@@ -16,7 +21,6 @@ use App\Modules\Simulation\Requests\ManualCallRequest;
 use App\Modules\Simulation\Requests\SimulationConditionRequest;
 use App\Modules\Simulation\Emergency\EmergencyControlService;
 use App\Modules\Simulation\OutOfService\OutOfServiceControlService;
-use App\Modules\Simulation\Services\QueuePreviewService;
 use App\Modules\Simulation\Services\SimulationLifecycleService;
 use App\Modules\Simulation\Services\SimulationStateMutexService;
 use RuntimeException;
@@ -32,7 +36,6 @@ final class SimulationControlController extends Controller
     public function __construct(
         private readonly RedisRuntimeStateRepository $runtimeStateRepository,
         private readonly DispatchService $dispatchService,
-        private readonly QueuePreviewService $queuePreviewService,
         private readonly SimulationLifecycleService $simulationLifecycleService,
         private readonly SimulationStateMutexService $simulationStateMutexService,
         private readonly EmergencyControlService $emergencyControlService,
@@ -43,9 +46,9 @@ final class SimulationControlController extends Controller
 
     public function queuePreview(Simulation $simulation): JsonResponse
     {
-        $preview = $this->queuePreviewService->buildPreview($simulation->id);
+        $state = $this->runtimeStateRepository->loadState($simulation->id);
 
-        return response()->json($preview);
+        return response()->json(SimulationSnapshotDto::fromState($state)->toArray());
     }
 
     public function enqueueManualCall(ManualCallRequest $request, Simulation $simulation): JsonResponse
@@ -64,37 +67,41 @@ final class SimulationControlController extends Controller
         });
 
         if ($assignment === false) {
-            return response()->json([
+            return response()->json(ManualCallAssignmentResource::make([
                 'assigned' => false,
                 'message'  => 'Manual calls are only available in manual mode',
-            ], 409);
+            ])->resolve(), 409);
         }
 
         if ($assignment === null) {
-            return response()->json([
+            return response()->json(ManualCallAssignmentResource::make([
                 'assigned' => false,
                 'message'  => 'No available elevator for this call',
-            ], 409);
+            ])->resolve(), 409);
         }
 
-        return response()->json([
+        return response()->json(ManualCallAssignmentResource::make([
             'assigned'   => true,
             'assignment' => $assignment,
-        ]);
+        ])->resolve());
     }
 
     public function start(Simulation $simulation): JsonResponse
     {
         $simulation = $this->simulationLifecycleService->start($simulation);
 
-        return response()->json(['status' => $simulation->status]);
+        return response()->json(SimulationStatusResource::make([
+            'status' => $simulation->status,
+        ])->resolve());
     }
 
     public function pause(Simulation $simulation): JsonResponse
     {
         $simulation = $this->simulationLifecycleService->pause($simulation);
 
-        return response()->json(['status' => $simulation->status]);
+        return response()->json(SimulationStatusResource::make([
+            'status' => $simulation->status,
+        ])->resolve());
     }
 
     public function reset(Simulation $simulation): JsonResponse
@@ -103,7 +110,9 @@ final class SimulationControlController extends Controller
             return $this->simulationLifecycleService->reset($simulation);
         });
 
-        return response()->json(['status' => $simulation->status]);
+        return response()->json(SimulationStatusResource::make([
+            'status' => $simulation->status,
+        ])->resolve());
     }
 
     public function setSimulationCondition(SimulationConditionRequest $request, Simulation $simulation): JsonResponse
@@ -120,11 +129,11 @@ final class SimulationControlController extends Controller
             $this->runtimeStateRepository->saveState($state);
         });
 
-        return response()->json([
+        return response()->json(SimulationConditionResource::make([
             'scope'           => 'simulation',
             'condition'       => $condition,
             'isEmergencyMode' => $condition === ElevatorConditionEnum::Emergency->value,
-        ]);
+        ])->resolve());
     }
 
     public function setElevatorCondition(ElevatorConditionRequest $request, Simulation $simulation, string $elevatorId): JsonResponse
@@ -168,11 +177,11 @@ final class SimulationControlController extends Controller
             return response()->json(['message' => 'Elevator not found'], 404);
         }
 
-        return response()->json([
+        return response()->json(ElevatorConditionResource::make([
             'scope'      => 'elevator',
             'elevatorId' => $elevatorId,
             'condition'  => $condition,
-        ]);
+        ])->resolve());
     }
 
     /**

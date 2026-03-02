@@ -4,7 +4,7 @@ namespace App\Modules\Simulation\Calls;
 
 use App\Modules\Simulation\Enums\HallCallDirectionEnum;
 use App\Modules\Simulation\Enums\SimulationModeEnum;
-use App\Modules\Simulation\Runtime\HallCallState;
+use App\Modules\Simulation\Runtime\HallCallRuntimeState;
 use App\Modules\Simulation\Runtime\SimulationRuntimeState;
 use Random\RandomException;
 
@@ -13,7 +13,7 @@ final class ModeTrafficService
     /**
      * @throws RandomException
      */
-    public function maybeGenerateCall(SimulationRuntimeState $state): ?HallCallState
+    public function maybeGenerateCall(SimulationRuntimeState $state): ?HallCallRuntimeState
     {
         if ($state->mode === SimulationModeEnum::Manual) {
             return null;
@@ -27,8 +27,8 @@ final class ModeTrafficService
 
         [$originFloor, $targetFloor] = $this->pickFloors($state->mode, $state->floors);
 
-        return new HallCallState(
-            callId          : HallCallState::newId($state->simulationId, $state->tickNumber, 'call'),
+        return new HallCallRuntimeState(
+            callId          : HallCallRuntimeState::newId($state->simulationId, $state->tickNumber, 'call'),
             originFloor     : $originFloor,
             targetFloor     : $targetFloor,
             direction       : HallCallDirectionEnum::fromFloors($originFloor, $targetFloor),
