@@ -2,6 +2,7 @@ type RunStatsPanelProps = {
   waitingCount: number;
   pickedUpCount: number;
   droppedOffCount: number;
+  totalCount: number;
 };
 
 function MetricPill({ label, value }: { label: string; value: string }) {
@@ -13,9 +14,7 @@ function MetricPill({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function RunStatsPanel({ waitingCount, pickedUpCount, droppedOffCount }: RunStatsPanelProps) {
-  const totalCount = waitingCount + pickedUpCount + droppedOffCount;
-
+export function RunStatsPanel({ waitingCount, pickedUpCount, droppedOffCount, totalCount }: RunStatsPanelProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">

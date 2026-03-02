@@ -19,6 +19,7 @@ export type QueueElevator = {
   currentFloor: number;
   currentLoad: number;
   capacity: number;
+  assignedPickupCount: number;
   pickedUpPassengers: number;
   droppedOffPassengers: number;
   direction: 'up' | 'down' | 'idle';
@@ -39,6 +40,7 @@ export type QueuePreview = {
   waitingPassengers: number;
   pickedUpPassengers: number;
   droppedOffPassengers: number;
+  totalPassengers: number;
   elevators: QueueElevator[];
   pendingHallCalls: Array<Record<string, string | number | null>>;
 };

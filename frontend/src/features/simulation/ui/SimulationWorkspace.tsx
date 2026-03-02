@@ -104,6 +104,7 @@ export function SimulationWorkspace() {
               waitingCount={controller.previewViewModel.waitingCount}
               pickedUpCount={controller.previewViewModel.pickedUpCount}
               droppedOffCount={controller.previewViewModel.droppedOffCount}
+              totalCount={controller.previewViewModel.totalCount}
             />
           </div>
         </div>

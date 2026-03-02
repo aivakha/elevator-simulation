@@ -12,6 +12,7 @@ const emptyQueuePreview: QueuePreview = {
   waitingPassengers: 0,
   pickedUpPassengers: 0,
   droppedOffPassengers: 0,
+  totalPassengers: 0,
   elevators: [],
   pendingHallCalls: [],
 };

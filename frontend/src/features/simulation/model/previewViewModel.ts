@@ -8,6 +8,7 @@ type PreviewViewModel = {
   waitingCount: number;
   pickedUpCount: number;
   droppedOffCount: number;
+  totalCount: number;
   outOfServiceElevatorIds: string[];
   pendingOutOfServiceElevatorIds: string[];
   overloadedElevatorIds: string[];
@@ -18,14 +19,13 @@ export function buildPreviewViewModel(preview: QueuePreview, selectedElevatorId:
 
   return {
     selectedElevator,
-    selectedElevatorAssignedPickupCount: preview.pendingHallCalls.filter(
-      (call) => String(call.assignedElevatorId ?? '') === selectedElevatorId && String(call.status) === 'assigned',
-    ).length,
+    selectedElevatorAssignedPickupCount: selectedElevator?.assignedPickupCount ?? 0,
     selectedElevatorPickedUpCount: selectedElevator?.pickedUpPassengers ?? 0,
     selectedElevatorDroppedOffCount: selectedElevator?.droppedOffPassengers ?? 0,
     waitingCount: preview.waitingPassengers ?? 0,
     pickedUpCount: preview.pickedUpPassengers ?? 0,
     droppedOffCount: preview.droppedOffPassengers ?? 0,
+    totalCount: preview.totalPassengers ?? ((preview.waitingPassengers ?? 0) + (preview.pickedUpPassengers ?? 0) + (preview.droppedOffPassengers ?? 0)),
     outOfServiceElevatorIds: preview.elevators
       .filter((item) => item.condition === 'OutOfService')
       .map((item) => item.elevatorId),
