@@ -3,11 +3,10 @@
 namespace App\Modules\Simulation\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Simulation\SimulationConfigOptionsResource;
-use App\Http\Resources\Simulation\SimulationResource;
 use App\Models\Simulation;
 use App\Modules\Simulation\DTOs\SimulationConfigDto;
 use App\Modules\Simulation\Requests\SimulationConfigRequest;
+use App\Modules\Simulation\Resources\SimulationResource;
 use App\Modules\Simulation\Services\SimulationLifecycleService;
 use Illuminate\Http\JsonResponse;
 
@@ -80,9 +79,9 @@ final class SimulationController extends Controller
 
     public function configOptions(): JsonResponse
     {
-        return response()->json(SimulationConfigOptionsResource::make([
+        return response()->json([
             'defaults' => Simulation::defaultConfigPayload(),
             'limits'   => config('simulation.limits', []),
-        ])->resolve());
+        ]);
     }
 }

@@ -4,14 +4,11 @@ namespace App\Modules\Simulation\Controllers;
 
 use Closure;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Simulation\ElevatorConditionResource;
-use App\Http\Resources\Simulation\ManualCallAssignmentResource;
-use App\Http\Resources\Simulation\SimulationConditionResource;
-use App\Http\Resources\Simulation\SimulationStatusResource;
 use App\Models\Simulation;
 use App\Modules\Simulation\DTOs\ManualCallDto;
 use App\Modules\Simulation\DTOs\SimulationSnapshotDto;
 use App\Modules\Simulation\Enums\ElevatorConditionEnum;
+use App\Modules\Simulation\Enums\ElevatorConditionUpdateResult;
 use App\Modules\Simulation\Enums\SimulationModeEnum;
 use App\Modules\Simulation\Calls\DispatchService;
 use App\Modules\Simulation\Overload\OverloadControlService;
@@ -29,10 +26,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class SimulationControlController extends Controller
 {
-    private const string SET_ELEVATOR_CONDITION_UPDATED        = 'updated';
-    private const string SET_ELEVATOR_CONDITION_EMERGENCY_MODE = 'emergency_mode';
-    private const string SET_ELEVATOR_CONDITION_NOT_FOUND      = 'not_found';
-
     public function __construct(
         private readonly RedisRuntimeStateRepository $runtimeStateRepository,
         private readonly DispatchService $dispatchService,
@@ -67,41 +60,37 @@ final class SimulationControlController extends Controller
         });
 
         if ($assignment === false) {
-            return response()->json(ManualCallAssignmentResource::make([
+            return response()->json([
                 'assigned' => false,
                 'message'  => 'Manual calls are only available in manual mode',
-            ])->resolve(), 409);
+            ], 409);
         }
 
         if ($assignment === null) {
-            return response()->json(ManualCallAssignmentResource::make([
+            return response()->json([
                 'assigned' => false,
                 'message'  => 'No available elevator for this call',
-            ])->resolve(), 409);
+            ], 409);
         }
 
-        return response()->json(ManualCallAssignmentResource::make([
+        return response()->json([
             'assigned'   => true,
             'assignment' => $assignment,
-        ])->resolve());
+        ]);
     }
 
     public function start(Simulation $simulation): JsonResponse
     {
         $simulation = $this->simulationLifecycleService->start($simulation);
 
-        return response()->json(SimulationStatusResource::make([
-            'status' => $simulation->status,
-        ])->resolve());
+        return response()->json(['status' => $simulation->status]);
     }
 
     public function pause(Simulation $simulation): JsonResponse
     {
         $simulation = $this->simulationLifecycleService->pause($simulation);
 
-        return response()->json(SimulationStatusResource::make([
-            'status' => $simulation->status,
-        ])->resolve());
+        return response()->json(['status' => $simulation->status]);
     }
 
     public function reset(Simulation $simulation): JsonResponse
@@ -110,9 +99,7 @@ final class SimulationControlController extends Controller
             return $this->simulationLifecycleService->reset($simulation);
         });
 
-        return response()->json(SimulationStatusResource::make([
-            'status' => $simulation->status,
-        ])->resolve());
+        return response()->json(['status' => $simulation->status]);
     }
 
     public function setSimulationCondition(SimulationConditionRequest $request, Simulation $simulation): JsonResponse
@@ -129,22 +116,22 @@ final class SimulationControlController extends Controller
             $this->runtimeStateRepository->saveState($state);
         });
 
-        return response()->json(SimulationConditionResource::make([
+        return response()->json([
             'scope'           => 'simulation',
             'condition'       => $condition,
             'isEmergencyMode' => $condition === ElevatorConditionEnum::Emergency->value,
-        ])->resolve());
+        ]);
     }
 
     public function setElevatorCondition(ElevatorConditionRequest $request, Simulation $simulation, string $elevatorId): JsonResponse
     {
         $condition = (string) $request->validated('condition');
 
-        $result = $this->withSimulationLock($simulation->id, function () use ($simulation, $elevatorId, $condition): string {
+        $result = $this->withSimulationLock($simulation->id, function () use ($simulation, $elevatorId, $condition): ElevatorConditionUpdateResult {
             $state = $this->runtimeStateRepository->loadState($simulation->id);
 
             if ($state->isEmergencyMode) {
-                return self::SET_ELEVATOR_CONDITION_EMERGENCY_MODE;
+                return ElevatorConditionUpdateResult::EmergencyMode;
             }
 
             $changed = false;
@@ -159,29 +146,29 @@ final class SimulationControlController extends Controller
             }
 
             if (!$changed) {
-                return self::SET_ELEVATOR_CONDITION_NOT_FOUND;
+                return ElevatorConditionUpdateResult::NotFound;
             }
 
             $this->runtimeStateRepository->saveState($state);
 
-            return self::SET_ELEVATOR_CONDITION_UPDATED;
+            return ElevatorConditionUpdateResult::Updated;
         });
 
-        if ($result === self::SET_ELEVATOR_CONDITION_EMERGENCY_MODE) {
+        if ($result === ElevatorConditionUpdateResult::EmergencyMode) {
             return response()->json([
                 'message' => 'Cannot set elevator condition while simulation emergency mode is active',
             ], 409);
         }
 
-        if ($result === self::SET_ELEVATOR_CONDITION_NOT_FOUND) {
+        if ($result === ElevatorConditionUpdateResult::NotFound) {
             return response()->json(['message' => 'Elevator not found'], 404);
         }
 
-        return response()->json(ElevatorConditionResource::make([
+        return response()->json([
             'scope'      => 'elevator',
             'elevatorId' => $elevatorId,
             'condition'  => $condition,
-        ])->resolve());
+        ]);
     }
 
     /**
