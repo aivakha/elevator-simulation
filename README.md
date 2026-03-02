@@ -38,12 +38,6 @@ Production-style elevator simulation platform with real-time control UI.
 - `PATCH /api/v1/simulations/{id}/condition`
 - `PATCH /api/v1/simulations/{id}/elevators/{elevatorId}/condition`
 
-## Local Run (Docker Compose)
-1. `cd /Users/oleksandr/Documents/New project/elevator_v2`
-2. `make up`
-3. `make bootstrap`
-4. Open `http://localhost:8082`
-
 ## Railway Deployment
 See `RAILWAY_DEPLOY.md` for service-by-service configuration.
 
