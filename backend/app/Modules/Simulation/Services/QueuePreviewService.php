@@ -19,6 +19,16 @@ final readonly class QueuePreviewService
     {
         $state = $this->runtimeStateRepository->loadState($simulationId);
         $defaults = config('simulation.defaults', []);
+        $assignedPickupCountsByElevator = [];
+
+        foreach ($state->pendingHallCalls as $call) {
+            if ($call->status !== CallStatusEnum::Assigned || $call->assignedElevatorId === null) {
+                continue;
+            }
+
+            $assignedPickupCountsByElevator[$call->assignedElevatorId] =
+                ($assignedPickupCountsByElevator[$call->assignedElevatorId] ?? 0) + 1;
+        }
 
         $elevators = array_map(
             static fn ($elevator): array => [
@@ -26,6 +36,7 @@ final readonly class QueuePreviewService
                 'currentFloor'         => $elevator->currentFloor,
                 'currentLoad'          => $elevator->currentLoad,
                 'capacity'             => $elevator->capacity,
+                'assignedPickupCount'  => (int) ($assignedPickupCountsByElevator[$elevator->elevatorId] ?? 0),
                 'pickedUpPassengers'   => $elevator->pickedUpPassengers,
                 'droppedOffPassengers' => $elevator->droppedOffPassengers,
                 'direction'            => $elevator->direction->value,
@@ -71,6 +82,7 @@ final readonly class QueuePreviewService
             'waitingPassengers'   => $waitingPassengers,
             'pickedUpPassengers'  => $state->pickedUpPassengers,
             'droppedOffPassengers' => $state->droppedOffPassengers,
+            'totalPassengers'     => $waitingPassengers + $state->pickedUpPassengers + $state->droppedOffPassengers,
             'elevators'           => $elevators,
             'pendingHallCalls'    => $pendingHallCalls,
         ];

@@ -14,6 +14,22 @@ final class TickPayloadBuilderService
     {
         /** @var array<string, int|string> $defaults */
         $defaults = config('simulation.defaults', []);
+        $assignedPickupCountsByElevator = [];
+
+        foreach ($state->pendingHallCalls as $call) {
+            if ($call->status !== CallStatusEnum::Assigned || $call->assignedElevatorId === null) {
+                continue;
+            }
+
+            $assignedPickupCountsByElevator[$call->assignedElevatorId] =
+                ($assignedPickupCountsByElevator[$call->assignedElevatorId] ?? 0) + 1;
+        }
+
+        $waitingPassengers = array_reduce(
+            $state->pendingHallCalls,
+            static fn (int $carry, $call): int => $carry + ($call->status === CallStatusEnum::Pending ? 1 : 0),
+            0,
+        );
 
         return [
             'simulationId'      => $state->simulationId,
@@ -24,19 +40,17 @@ final class TickPayloadBuilderService
             'tickIntervalMs'    => max(1, (int) $defaults['tickIntervalMs']),
             'floorTravelSeconds' => max(1, (int) $defaults['floorTravelSeconds']),
             'maxPendingCalls'   => max(1, (int) $defaults['maxPendingCalls']),
-            'waitingPassengers' => array_reduce(
-                $state->pendingHallCalls,
-                static fn (int $carry, $call): int => $carry + ($call->status === CallStatusEnum::Pending ? 1 : 0),
-                0,
-            ),
+            'waitingPassengers' => $waitingPassengers,
             'pickedUpPassengers'  => $state->pickedUpPassengers,
             'droppedOffPassengers' => $state->droppedOffPassengers,
+            'totalPassengers'     => $waitingPassengers + $state->pickedUpPassengers + $state->droppedOffPassengers,
             'elevators'           => array_map(
                 static fn ($e): array => [
                     'elevatorId'          => $e->elevatorId,
                     'currentFloor'        => $e->currentFloor,
                     'currentLoad'         => $e->currentLoad,
                     'capacity'            => $e->capacity,
+                    'assignedPickupCount' => (int) ($assignedPickupCountsByElevator[$e->elevatorId] ?? 0),
                     'pickedUpPassengers'  => $e->pickedUpPassengers,
                     'droppedOffPassengers' => $e->droppedOffPassengers,
                     'direction'           => $e->direction->value,
