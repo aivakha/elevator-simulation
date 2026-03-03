@@ -64,11 +64,6 @@ final class ElevatorRuntimeState
         $elevatorId  = (string) $data['elevatorId'];
         $shaftNumber = (int) ($data['shaftNumber'] ?? 0);
 
-        // Backward-compat: derive shaftNumber from elevatorId for states stored before shaftNumber was persisted
-        if (!isset($data['shaftNumber']) && preg_match('/^E(\d+)$/', $elevatorId, $matches) === 1) {
-            $shaftNumber = max(0, (int) $matches[1] - 1);
-        }
-
         return new self(
             elevatorId:           $elevatorId,
             shaftNumber:          $shaftNumber,
