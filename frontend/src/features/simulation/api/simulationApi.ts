@@ -1,7 +1,6 @@
 import type {
   CreateSimulationInput,
   ElevatorConditionControl,
-  QueuePreview,
   SimulationConditionControl,
   SimulationConfigOptions,
   SimulationSummary,
@@ -116,16 +115,6 @@ export async function updateSimulationConfig(
 
 export async function deleteSimulation(simulationId: string): Promise<void> {
   await deleteVoid(`/simulations/${simulationId}`, 'failed to delete simulation');
-}
-
-export async function fetchQueuePreview(simulationId: string): Promise<QueuePreview> {
-  const response = await apiRequest(`/simulations/${simulationId}/queue-preview`);
-
-  if (!response.ok) {
-    throw new Error(`queue preview fetch failed with status ${response.status}`);
-  }
-
-  return await response.json() as Promise<QueuePreview>;
 }
 
 export async function lifecycleAction(simulationId: string, action: 'start' | 'pause' | 'reset'): Promise<void> {

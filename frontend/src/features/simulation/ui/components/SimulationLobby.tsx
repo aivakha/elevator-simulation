@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { fetchSimulationConfigOptions } from '../../api/simulationApi';
+import { useMemo, useState } from 'react';
 import { simulationStatusPill, toTitleCase } from '../lib/format';
 import type {
   CreateSimulationInput,
@@ -12,9 +11,10 @@ import { Button } from './Button';
 
 type SimulationLobbyProps = {
   simulations: SimulationSummary[];
+  configOptions: SimulationConfigOptions | null;
   isBusy: boolean;
   onOpenDocumentation: () => void;
-  onOpenSimulation: (simulationId: string) => Promise<void>;
+  onOpenSimulation: (simulationId: string) => void;
   onCreateSimulation: (input: CreateSimulationInput) => Promise<void>;
   onUpdateSimulationConfig: (simulationId: string, input: CreateSimulationInput) => Promise<void>;
   onDeleteSimulation: (simulationId: string) => Promise<void>;
@@ -27,6 +27,7 @@ const algorithms: DispatchAlgorithm[] = ['nearestCar', 'scan', 'look'];
 
 export function SimulationLobby({
   simulations,
+  configOptions,
   isBusy,
   onOpenDocumentation,
   onOpenSimulation,
@@ -34,7 +35,6 @@ export function SimulationLobby({
   onUpdateSimulationConfig,
   onDeleteSimulation,
 }: SimulationLobbyProps) {
-  const [configOptions, setConfigOptions] = useState<SimulationConfigOptions | null>(null);
   const [view, setView] = useState<LobbyView>('list');
   const [editingSimulationId, setEditingSimulationId] = useState<string | null>(null);
   const [name, setName] = useState('New Simulation');
@@ -50,35 +50,6 @@ export function SimulationLobby({
     [simulations, editingSimulationId],
   );
   const limits = configOptions?.limits ?? null;
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadConfigOptions() {
-      try {
-        const options = await fetchSimulationConfigOptions();
-        if (!isMounted) {
-          return;
-        }
-
-        setConfigOptions(options);
-        setName(options.defaults.name);
-        setFloors(options.defaults.floors);
-        setElevators(options.defaults.elevators);
-        setCapacityPerElevator(options.defaults.capacityPerElevator);
-        setDoorOpenSeconds(options.defaults.doorOpenSeconds);
-        setMode(options.defaults.mode);
-        setAlgorithm(options.defaults.algorithm);
-      } catch {
-      }
-    }
-
-    void loadConfigOptions();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

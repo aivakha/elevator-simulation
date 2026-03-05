@@ -3,6 +3,7 @@ import {
   createSimulation,
   deleteSimulation,
   enqueueManualCall,
+  fetchSimulationConfigOptions,
   lifecycleAction,
   listSimulations,
   setElevatorCondition,
@@ -12,25 +13,22 @@ import {
 import { buildPreviewViewModel } from './previewViewModel';
 import type {
   CreateSimulationInput,
+  SimulationConfigOptions,
   SimulationSummary,
 } from './types';
 import { useQueuePreview } from './useQueuePreview';
 
 type ScreenMode = 'lobby' | 'simulation';
 
-type RefreshOptions = {
-  refreshList?: boolean;
-  forcePreview?: boolean;
-};
-
 export function useSimulationWorkspaceController() {
   const [screenMode, setScreenMode] = useState<ScreenMode>('lobby');
   const [simulations, setSimulations] = useState<SimulationSummary[]>([]);
+  const [configOptions, setConfigOptions] = useState<SimulationConfigOptions | null>(null);
   const [activeSimulationId, setActiveSimulationId] = useState<string | null>(null);
   const [selectedElevatorId, setSelectedElevatorId] = useState('');
   const [isBusy, setIsBusy] = useState(false);
 
-  const { preview, isLive, refresh } = useQueuePreview(activeSimulationId ?? '');
+  const { preview, isLive } = useQueuePreview(activeSimulationId ?? '');
 
   const activeSimulation = useMemo(
     () => simulations.find((item) => item.id === activeSimulationId) ?? null,
@@ -64,7 +62,7 @@ export function useSimulationWorkspaceController() {
 
   const runForActiveSimulation = async <T>(
     task: (simulationId: string) => Promise<T>,
-    options: RefreshOptions = {},
+    refreshList = false,
   ): Promise<T | null> => {
     if (!activeSimulationId) {
       return null;
@@ -73,37 +71,29 @@ export function useSimulationWorkspaceController() {
     return withBusy(async () => {
       const result = await task(activeSimulationId);
 
-      if (options.refreshList) {
+      if (refreshList) {
         await refreshSimulationList();
       }
 
-      await refresh(options.forcePreview ? { force: true } : undefined);
       return result;
     });
   };
 
   const runForRunningSimulation = async <T>(
     task: (simulationId: string) => Promise<T>,
-    options: RefreshOptions = {},
+    refreshList = false,
   ): Promise<T | null> => {
     if (!isSimulationRunning) {
       return null;
     }
 
-    return runForActiveSimulation(task, options);
+    return runForActiveSimulation(task, refreshList);
   };
 
   useEffect(() => {
     void refreshSimulationList();
+    void fetchSimulationConfigOptions().then(setConfigOptions).catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if (!activeSimulation) {
-      return;
-    }
-
-    void refresh({ force: true });
-  }, [activeSimulation, refresh]);
 
   useEffect(() => {
     if (preview.elevators.length === 0) {
@@ -116,12 +106,9 @@ export function useSimulationWorkspaceController() {
     }
   }, [preview.elevators, selectedElevatorId]);
 
-  const openSimulation = async (simulationId: string) => {
-    await withBusy(async () => {
-      setActiveSimulationId(simulationId);
-      setScreenMode('simulation');
-      await refresh({ force: true });
-    });
+  const openSimulation = (simulationId: string) => {
+    setActiveSimulationId(simulationId);
+    setScreenMode('simulation');
   };
 
   const goToLobby = () => {
@@ -134,7 +121,6 @@ export function useSimulationWorkspaceController() {
       await refreshSimulationList();
       setActiveSimulationId(created.id);
       setScreenMode('simulation');
-      await refresh();
     });
   };
 
@@ -142,10 +128,6 @@ export function useSimulationWorkspaceController() {
     await withBusy(async () => {
       await updateSimulationConfig(simulationId, input);
       await refreshSimulationList();
-
-      if (activeSimulationId === simulationId) {
-        await refresh({ force: true });
-      }
     });
   };
 
@@ -166,7 +148,7 @@ export function useSimulationWorkspaceController() {
     const endpoint = action === 'resume' ? 'start' : action;
     await runForActiveSimulation(
       (simulationId) => lifecycleAction(simulationId, endpoint),
-      { refreshList: true, forcePreview: action === 'reset' },
+      true,
     );
   };
 
@@ -213,6 +195,7 @@ export function useSimulationWorkspaceController() {
   return {
     screenMode,
     simulations,
+    configOptions,
     activeSimulation,
     mode,
     algorithm,

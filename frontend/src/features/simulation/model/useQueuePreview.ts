@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { fetchQueuePreview } from '../api/simulationApi';
+import { useEffect, useMemo, useState } from 'react';
 import type { QueuePreview } from './types';
 
 const emptyQueuePreview: QueuePreview = {
@@ -21,36 +20,10 @@ export function useQueuePreview(simulationId: string) {
   const [preview, setPreview] = useState<QueuePreview>(emptyQueuePreview);
   const [isLive, setIsLive] = useState(false);
 
-  const refresh = useCallback(async (options?: { force?: boolean }) => {
-    if (simulationId === '') {
-      return;
-    }
-
-    try {
-      const result = await fetchQueuePreview(simulationId);
-      setPreview((current) => {
-        if (options?.force === true) {
-          return result;
-        }
-
-        if (result.simulationId !== simulationId) {
-          return current;
-        }
-
-        if (current.simulationId === simulationId && result.tickNumber < current.tickNumber) {
-          return current;
-        }
-
-        return result;
-      });
-    } catch {
-      // Keep current data while backend is unavailable.
-    }
-  }, [simulationId]);
-
+  // Clear stale data immediately when switching simulations.
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    setPreview(emptyQueuePreview);
+  }, [simulationId]);
 
   useEffect(() => {
     if (simulationId === '') {
@@ -68,6 +41,8 @@ export function useQueuePreview(simulationId: string) {
 
       socket.addEventListener('open', () => {
         setIsLive(true);
+        // Request the latest snapshot for this simulation immediately on connect.
+        socket?.send(JSON.stringify({ type: 'subscribe', simulationId }));
       });
 
       socket.addEventListener('message', (event) => {
@@ -81,7 +56,10 @@ export function useQueuePreview(simulationId: string) {
 
           if (runtimePayload && runtimePayload.simulationId === simulationId) {
             setPreview((current) => {
-              if (current.simulationId === simulationId && runtimePayload.tickNumber <= current.tickNumber) {
+              // tickNumber === 0 means a reset — always apply it regardless of
+              // the current tick so the view snaps back to the initial state.
+              const isReset = runtimePayload.tickNumber === 0;
+              if (!isReset && current.simulationId === simulationId && runtimePayload.tickNumber <= current.tickNumber) {
                 return current;
               }
 
@@ -121,11 +99,7 @@ export function useQueuePreview(simulationId: string) {
   }, [simulationId]);
 
   return useMemo(
-    () => ({
-      preview,
-      isLive,
-      refresh,
-    }),
-    [preview, isLive, refresh],
+    () => ({ preview, isLive }),
+    [preview, isLive],
   );
 }

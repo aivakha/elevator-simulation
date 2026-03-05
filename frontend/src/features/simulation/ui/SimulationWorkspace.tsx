@@ -26,6 +26,7 @@ export function SimulationWorkspace() {
     return (
       <SimulationLobby
         simulations={controller.simulations}
+        configOptions={controller.configOptions}
         isBusy={controller.isBusy}
         onOpenDocumentation={() => setIsDocsOpen(true)}
         onOpenSimulation={controller.openSimulation}
