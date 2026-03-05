@@ -24,6 +24,26 @@ const wss = new WebSocketServer({ port: websocketPort });
 
 wss.on('connection', (client) => {
   client.send(JSON.stringify({ type: 'connection', message: 'connected to elevator_v2 websocket' }));
+
+  client.on('message', async (data) => {
+    try {
+      const msg = JSON.parse(data.toString());
+
+      if (msg.type === 'subscribe' && typeof msg.simulationId === 'string') {
+        const historyKey = `simulation:${msg.simulationId}:ticks`;
+        const latest = await publisher.lindex(historyKey, 0);
+
+        if (latest && client.readyState === 1) {
+          client.send(JSON.stringify({
+            channel: `simulation:${msg.simulationId}:ticks`,
+            payload: safeJson(latest),
+          }));
+        }
+      }
+    } catch {
+      // ignore malformed messages
+    }
+  });
 });
 
 subscriber.psubscribe(...redisChannelPatterns, (error) => {
