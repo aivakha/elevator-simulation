@@ -15,7 +15,6 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/simulations/{simulation}/pause', [SimulationControlController::class, 'pause']);
     Route::post('/simulations/{simulation}/reset', [SimulationControlController::class, 'reset']);
 
-    Route::get('/simulations/{simulation}/queue-preview', [SimulationControlController::class, 'queuePreview']);
     Route::post('/simulations/{simulation}/calls/manual', [SimulationControlController::class, 'enqueueManualCall']);
     Route::patch('/simulations/{simulation}/condition', [SimulationControlController::class, 'setSimulationCondition']);
     Route::patch('/simulations/{simulation}/elevators/{elevatorId}/condition', [SimulationControlController::class, 'setElevatorCondition']);

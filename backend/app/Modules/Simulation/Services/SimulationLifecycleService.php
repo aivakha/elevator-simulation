@@ -5,6 +5,7 @@ namespace App\Modules\Simulation\Services;
 use App\Models\Simulation;
 use App\Models\SimulationRun;
 use App\Modules\Simulation\DTOs\SimulationConfigDto;
+use App\Modules\Simulation\DTOs\SimulationSnapshotDto;
 use App\Modules\Simulation\Enums\SimulationStatusEnum;
 use App\Modules\Simulation\Repositories\RedisRuntimeStateRepository;
 use Carbon\CarbonImmutable;
@@ -85,6 +86,7 @@ final readonly class SimulationLifecycleService
         $state = $this->runtimeStateFactory->create($simulation->id, $config);
 
         $this->runtimeStateRepository->saveState($state);
+        $this->runtimeStateRepository->publishTick($simulation->id, SimulationSnapshotDto::fromState($state)->toArray());
 
         return $simulation;
     }

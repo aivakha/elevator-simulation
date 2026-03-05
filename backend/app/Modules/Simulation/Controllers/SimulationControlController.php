@@ -6,7 +6,6 @@ use Closure;
 use App\Http\Controllers\Controller;
 use App\Models\Simulation;
 use App\Modules\Simulation\DTOs\ManualCallDto;
-use App\Modules\Simulation\DTOs\SimulationSnapshotDto;
 use App\Modules\Simulation\Enums\ElevatorConditionEnum;
 use App\Modules\Simulation\Enums\ElevatorConditionUpdateResult;
 use App\Modules\Simulation\Enums\SimulationModeEnum;
@@ -35,13 +34,6 @@ final class SimulationControlController extends Controller
         private readonly OverloadControlService $overloadControlService,
         private readonly OutOfServiceControlService $outOfServiceControlService,
     ) {
-    }
-
-    public function queuePreview(Simulation $simulation): JsonResponse
-    {
-        $state = $this->runtimeStateRepository->loadState($simulation->id);
-
-        return response()->json(SimulationSnapshotDto::fromState($state)->toArray());
     }
 
     public function enqueueManualCall(ManualCallRequest $request, Simulation $simulation): JsonResponse

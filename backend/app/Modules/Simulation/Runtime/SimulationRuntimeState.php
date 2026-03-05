@@ -65,21 +65,21 @@ final class SimulationRuntimeState
         $defaults = config('simulation.defaults', []);
 
         return new self(
-            simulationId:               (string) ($payload['simulationId'] ?? ''),
-            tickNumber:                 (int) ($payload['tickNumber'] ?? 0),
-            floors:                     (int) ($payload['floors'] ?? $defaults['floors']),
-            maxPendingCalls:            (int) ($payload['maxPendingCalls'] ?? $defaults['maxPendingCalls']),
-            emergencyDescentMultiplier: (int) ($payload['emergencyDescentMultiplier'] ?? $defaults['emergencyDescentMultiplier']),
-            doorHoldTicks:              (int) ($payload['doorHoldTicks'] ?? max(1, (int) round((int) $defaults['doorOpenSeconds'] * 1000 / max(1, (int) $defaults['tickIntervalMs'])))),
-            tickIntervalMs:             (int) ($payload['tickIntervalMs'] ?? max(1, (int) $defaults['tickIntervalMs'])),
-            floorTravelSeconds:         (int) ($payload['floorTravelSeconds'] ?? max(1, (int) $defaults['floorTravelSeconds'])),
-            pickedUpPassengers:         (int) ($payload['pickedUpPassengers'] ?? 0),
-            droppedOffPassengers:       (int) ($payload['droppedOffPassengers'] ?? 0),
-            mode:                       SimulationModeEnum::from((string) ($payload['mode'] ?? $defaults['mode'])),
-            algorithm:                  DispatchAlgorithmEnum::from((string) ($payload['algorithm'] ?? $defaults['algorithm'])),
-            isEmergencyMode:            (bool) ($payload['isEmergencyMode'] ?? false),
-            elevators:                  array_map(ElevatorRuntimeState::fromArray(...), $payload['elevators'] ?? []),
-            pendingHallCalls:           array_map(HallCallRuntimeState::fromArray(...), $payload['pendingHallCalls'] ?? []),
+            simulationId               : (string) ($payload['simulationId'] ?? ''),
+            tickNumber                 : (int) ($payload['tickNumber'] ?? 0),
+            floors                      : (int) ($payload['floors'] ?? $defaults['floors']),
+            maxPendingCalls            : (int) ($payload['maxPendingCalls'] ?? $defaults['maxPendingCalls']),
+            emergencyDescentMultiplier : (int) ($payload['emergencyDescentMultiplier'] ?? $defaults['emergencyDescentMultiplier']),
+            doorHoldTicks              : (int) ($payload['doorHoldTicks'] ?? max(1, (int) round((int) $defaults['doorOpenSeconds'] * 1000 / max(1, (int) $defaults['tickIntervalMs'])))),
+            tickIntervalMs             : (int) ($payload['tickIntervalMs'] ?? max(1, (int) $defaults['tickIntervalMs'])),
+            floorTravelSeconds          : (int) ($payload['floorTravelSeconds'] ?? max(1, (int) $defaults['floorTravelSeconds'])),
+            pickedUpPassengers         : (int) ($payload['pickedUpPassengers'] ?? 0),
+            droppedOffPassengers       : (int) ($payload['droppedOffPassengers'] ?? 0),
+            mode                       : SimulationModeEnum::from((string) ($payload['mode'] ?? $defaults['mode'])),
+            algorithm                  : DispatchAlgorithmEnum::from((string) ($payload['algorithm'] ?? $defaults['algorithm'])),
+            isEmergencyMode            : (bool) ($payload['isEmergencyMode'] ?? false),
+            elevators                  : array_map(ElevatorRuntimeState::fromArray(...), $payload['elevators'] ?? []),
+            pendingHallCalls           : array_map(HallCallRuntimeState::fromArray(...), $payload['pendingHallCalls'] ?? []),
         );
     }
 }
